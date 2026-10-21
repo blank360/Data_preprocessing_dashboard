@@ -1,4 +1,3 @@
-
 (function () {
     const D = window.DCD;
     const $ = (selector) => document.querySelector(selector);
@@ -20,7 +19,7 @@
         "export",
     ];
 
-    // -------------------- Utility Functions --------------------
+
 
     const escapeHTML = (value) =>
         String(value).replace(/[&<>"]/g, (char) => ({
@@ -88,7 +87,7 @@
             `)
             .join("");
 
-    // -------------------- Navigation --------------------
+
 
     $("#nav").innerHTML = TABS
         .map((tab) => `
@@ -126,7 +125,7 @@
         showTab(tabName);
     };
 
-    // -------------------- CSV Upload --------------------
+
 
     $("#file").onchange = async (event) => {
         const file = event.target.files[0];
@@ -170,7 +169,7 @@
         }
     };
 
-    // -------------------- Missing-Value Configuration --------------------
+
 
     $("#mkb").onclick = () => {
         missingMarkers = $("#mk").value
@@ -186,7 +185,7 @@
         );
     };
 
-    // -------------------- Dataset Rendering --------------------
+
 
     function render() {
         if (!work) return;
@@ -213,7 +212,6 @@
         $("#pg").textContent =
             `Page ${page + 1} of ${totalPages}`;
 
-        // Preview table
         $("#ptab").innerHTML = createTable(
             ["#", ...work.columns],
             rows.map((row, index) => [
@@ -226,7 +224,6 @@
             ])
         );
 
-        // Dataset profile
         $("#pdata").innerHTML = `
             <p>
                 Completeness: ${formatValue(profile.completeness)}%
@@ -265,7 +262,6 @@
             })
         );
 
-        // Populate column selectors
         const options = createOptions(work.columns);
 
         ["#mc", "#tc", "#oc"].forEach((selector) => {
@@ -287,7 +283,6 @@
 
         updateColumnInfo();
 
-        // Original vs. current dataset
         $("#cmp").innerHTML = createTable(
             ["Metric", "Original", "Current", "Change"],
             D.compare(base, work, missingMarkers).map((result) => [
@@ -301,7 +296,6 @@
             ])
         );
 
-        // Operation history
         $("#hist").innerHTML = history
             .map((operation) => `
                 <li>${escapeHTML(operation.record)}</li>
@@ -312,7 +306,7 @@
         $("#reset").disabled = history.length === 0;
     }
 
-    // -------------------- Column Information --------------------
+
 
     function updateColumnInfo() {
         const columnIndex = +$("#mc").value;
@@ -345,7 +339,7 @@
 
     $("#mc").onchange = updateColumnInfo;
 
-    // -------------------- Operation Commit / Undo --------------------
+
 
     function commitOperation(label, result) {
         const confirmed = confirm(
@@ -370,7 +364,7 @@
         showMessage(label);
     }
 
-    // -------------------- Fill Missing Values --------------------
+
 
     $("#mgo").onclick = () => runSafely(() => {
         const columnIndex = +$("#mc").value;
@@ -392,7 +386,7 @@
         );
     });
 
-    // -------------------- Remove Duplicates --------------------
+
 
     $("#dgo").onclick = () => runSafely(() => {
         const columns = [...$("#dc").selectedOptions]
@@ -414,7 +408,7 @@
         );
     });
 
-    // -------------------- Convert Column Type --------------------
+
 
     $("#tgo").onclick = () => runSafely(() => {
         const columnIndex = +$("#tc").value;
@@ -450,7 +444,7 @@
         );
     });
 
-    // -------------------- Outlier Detection --------------------
+
 
     $("#ogo").onclick = () => {
         const columnIndex = +$("#oc").value;
@@ -488,7 +482,7 @@
         );
     };
 
-    // -------------------- Undo / Reset --------------------
+
 
     $("#undo").onclick = () => {
         const previous = history.pop();
@@ -515,7 +509,7 @@
         showMessage("Reset to original.");
     };
 
-    // -------------------- Pagination --------------------
+
 
     $("#pp").onclick = () => {
         page = Math.max(0, page - 1);
@@ -529,7 +523,7 @@
         }
     };
 
-    // -------------------- CSV Export --------------------
+
 
     $("#exp").onclick = () => {
         try {
@@ -557,7 +551,7 @@
         }
     };
 
-    // -------------------- Prevent Accidental Data Loss --------------------
+
 
     window.onbeforeunload = (event) => {
         if (!work) return;
@@ -566,7 +560,7 @@
         event.returnValue = "";
     };
 
-    // -------------------- Initialization --------------------
+
 
     showTab("upload");
 })();

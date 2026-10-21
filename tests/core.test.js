@@ -1,26 +1,9 @@
-
-/*
- * Data Cleaning Dashboard - Core Tests
- *
- * Run: node tests/core.test.js
- *
- * Covers:
- * TC-002: Missing-value markers
- * TC-003: Dataset profiling
- * TC-004: Missing-value replacement
- * TC-005: Duplicate removal
- * TC-006: Column type conversion
- * TC-007: IQR-based outlier detection
- * TC-010: CSV export and round trip
- * Additional: Upload validation
- */
-
 const assert = require("assert");
 const D = require("../core.js");
 
 let passedTests = 0;
 
-// -------------------- Test Utilities --------------------
+
 
 function test(name, callback) {
     callback();
@@ -29,7 +12,7 @@ function test(name, callback) {
     console.log("PASS", name);
 }
 
-// Build a dataset from a header row and data rows.
+
 function createDataset(rows) {
     return {
         columns: rows[0],
@@ -37,7 +20,7 @@ function createDataset(rows) {
     };
 }
 
-// -------------------- TC-002: Missing-Value Markers --------------------
+
 
 test("TC-002: Literal NA stays text unless configured", () => {
     const dataset = D.load(
@@ -46,26 +29,26 @@ test("TC-002: Literal NA stays text unless configured", () => {
         "NA,x\n"
     );
 
-    // NA is not missing by default.
+
     assert.strictEqual(
         D.profile(dataset).cols[0].missing,
         0
     );
 
-    // NA is missing when explicitly configured.
+
     assert.strictEqual(
         D.profile(dataset, ["NA"]).cols[0].missing,
         1
     );
 
-    // Empty cells are always considered missing.
+
     assert.strictEqual(
         D.profile(dataset).cols[1].missing,
         1
     );
 });
 
-// -------------------- TC-003: Dataset Profiling --------------------
+
 
 test("TC-003: Profile calculates missing values and statistics", () => {
     const dataset = createDataset([
@@ -88,7 +71,7 @@ test("TC-003: Profile calculates missing values and statistics", () => {
     assert.strictEqual(profile.completeness, 75);
 });
 
-// -------------------- TC-004: Fill Missing Values --------------------
+
 
 test("TC-004: Constant replacement works; mean rejects text", () => {
     const dataset = createDataset([
@@ -106,10 +89,10 @@ test("TC-004: Constant replacement works; mean rejects text", () => {
     assert.strictEqual(result.affected, 1);
     assert.strictEqual(result.ds.rows[0][1], "0");
 
-    // Original dataset must remain unchanged.
+
     assert.strictEqual(dataset.rows[0][1], "");
 
-    // Mean replacement must reject a non-numeric column.
+
     assert.throws(() =>
         D.fillMissing(dataset, {
             col: 0,
@@ -118,7 +101,7 @@ test("TC-004: Constant replacement works; mean rejects text", () => {
     );
 });
 
-// -------------------- TC-005: Duplicate Removal --------------------
+
 
 test("TC-005: Removes duplicates and keeps first occurrences", () => {
     const dataset = createDataset([
@@ -140,7 +123,7 @@ test("TC-005: Removes duplicates and keeps first occurrences", () => {
     ]);
 });
 
-// -------------------- TC-006: Column Type Conversion --------------------
+
 
 test("TC-006: Converts integers and handles failed conversions", () => {
     const dataset = createDataset([
@@ -161,7 +144,7 @@ test("TC-006: Converts integers and handles failed conversions", () => {
 
     assert.strictEqual(result.ds.rows[2][0], "");
 
-    // Cancellation must return the original dataset.
+
     const cancelled = D.convertColumn(dataset, {
         col: 0,
         type: "integer",
@@ -170,7 +153,7 @@ test("TC-006: Converts integers and handles failed conversions", () => {
 
     assert.strictEqual(cancelled.ds, dataset);
 
-    // Missing failure-handling strategy must be rejected.
+
     assert.throws(() =>
         D.convertColumn(dataset, {
             col: 0,
@@ -179,7 +162,7 @@ test("TC-006: Converts integers and handles failed conversions", () => {
     );
 });
 
-// -------------------- TC-007: Outlier Detection --------------------
+
 
 test("TC-007: Detects outliers using the IQR method", () => {
     const dataset = createDataset([
@@ -205,11 +188,11 @@ test("TC-007: Detects outliers using the IQR method", () => {
         },
     ]);
 
-    // Outlier detection must not modify the dataset.
+
     assert.strictEqual(dataset.rows[5][0], "100");
 });
 
-// -------------------- TC-010: CSV Round Trip --------------------
+
 
 test("TC-010: CSV round trip preserves special characters", () => {
     const dataset = createDataset([
@@ -224,25 +207,25 @@ test("TC-010: CSV round trip preserves special characters", () => {
     assert.deepStrictEqual(restoredDataset, dataset);
 });
 
-// -------------------- Upload Validation --------------------
+
 
 test("Upload validation rejects malformed datasets", () => {
-    // Inconsistent row lengths.
+
     assert.throws(() =>
         D.load("a,b\n1\n")
     );
 
-    // Header without any data rows.
+
     assert.throws(() =>
         D.load("a,b\n")
     );
 
-    // Unclosed quoted field.
+
     assert.throws(() =>
         D.load('a\n"open')
     );
 });
 
-// -------------------- Test Summary --------------------
+
 
 console.log(`\n${passedTests} tests passed`);
