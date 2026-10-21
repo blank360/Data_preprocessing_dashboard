@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Data Cleaning Dashboard</title>
+    <style>
+        :root {
+            --bg: #f6f7f9;
+            --card: #fff;
+            --tx: #1d2330;
+            --mu: #5d6676;
+            --ac: #1f5fbf;
+            --bd: #d5d9e0;
+            --er: #b3261e;
+            --ok: #17653a
+        }
+
+        @media(prefers-color-scheme:dark) {
+            :root {
+                --bg: #14171d;
+                --card: #1d222b;
+                --tx: #e8ebf0;
+                --mu: #9aa3b2;
+                --ac: #6ea3ff;
+                --bd: #343b48;
+                --er: #ff8a80;
+                --ok: #7bd99b
+            }
+        }
+
+        body {
+            margin: 0;
+            font: 15px system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--tx)
+        }
+
+        header {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--bd);
+            background: var(--card)
+        }
+
+        h1 {
+            font-size: 19px;
+            margin: 0
+        }
+
+        #status {
+            color: var(--mu);
+            font-size: 13px
+        }
+
+        nav {
+            display: flex;
+            gap: 4px;
+            padding: 8px 20px;
+            flex-wrap: wrap
+        }
+
+        button,
+        select,
+        input {
+            font: inherit;
+            padding: 6px 10px;
+            border: 1px solid var(--bd);
+            border-radius: 6px;
+            background: var(--card);
+            color: var(--tx)
+        }
+
+        button {
+            cursor: pointer
+        }
+
+        button.on,
+        button.pri {
+            background: var(--ac);
+            color: #fff;
+            border-color: var(--ac)
+        }
+
+        button:disabled {
+            opacity: .5;
+            cursor: not-allowed
+        }
+
+        main {
+            padding: 0 20px 30px;
+            max-width: 1200px
+        }
+
+        section {
+            display: none
+        }
+
+        section.on {
+            display: block
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--bd);
+            border-radius: 8px;
+            padding: 14px;
+            margin: 10px 0
+        }
+
+        .card h3 {
+            margin: 0 0 8px;
+            font-size: 16px
+        }
+
+        .row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin: 6px 0
+        }
+
+        .w {
+            overflow-x: auto
+        }
+
+        table {
+            border-collapse: collapse;
+            font-size: 13px
+        }
+
+        th,
+        td {
+            border: 1px solid var(--bd);
+            padding: 4px 8px;
+            text-align: left
+        }
+
+        th {
+            background: var(--bg)
+        }
+
+        i.m {
+            color: var(--mu)
+        }
+
+        #msg {
+            padding: 8px 20px;
+            min-height: 20px
+        }
+
+        #msg.err {
+            color: var(--er)
+        }
+
+        #msg.ok {
+            color: var(--ok)
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Data Cleaning Dashboard</h1>
+        <div id="status">No dataset loaded</div>
+    </header>
+    <nav id="nav"></nav>
+    <div id="msg" role="status" aria-live="polite"></div>
+    <main>
+        <section id="upload">
+            <div class="card">
+                <h3>Upload</h3>
+                <p>Choose one UTF-8 CSV file (max 10 MiB, 100,000 rows x 100 columns). Data stays in your browser;
+                    nothing is sent anywhere.
+                    Session data is lost if you reload this page.</p>
+                <label>CSV file <input type="file" id="file" accept=".csv"></label>
+                <div class="row"><label>Extra missing markers (comma-separated, e.g. NA,NULL) <input
+                            id="mk"></label><button id="mkb">Apply</button></div>
+            </div>
+        </section>
+        <section id="preview">
+            <div class="card">
+                <h3>Preview</h3>
+                <div class="row"><button id="pp">Prev</button><span id="pg"></span><button id="pn">Next</button></div>
+                <div class="w" id="ptab"></div>
+            </div>
+        </section>
+        <section id="profile">
+            <div class="card">
+                <h3>Profile (current working data)</h3>
+                <div id="pdata"></div>
+            </div>
+        </section>
+        <section id="clean">
+            <div class="card">
+                <h3>Missing values</h3>
+                <div class="row"><label>Column <select id="mc"></select></label>
+                    <label>Strategy <select id="ms">
+                            <option value="remove">Remove rows with missing value</option>
+                            <option value="constant">Replace with constant</option>
+                            <option value="mean">Impute mean</option>
+                            <option value="median">Impute median</option>
+                        </select></label>
+                    <input id="mv" placeholder="constant"><button id="mgo">Preview and apply</button>
+                </div>
+                <div id="minfo"></div>
+            </div>
+            <div class="card">
+                <h3>Duplicate rows</h3>
+                <div class="row"><label>Compare on columns (none selected = all) <select id="dc" multiple
+                            size="4"></select></label>
+                    <button id="dgo">Preview and remove (keeps first)</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Type validation / conversion</h3>
+                <div class="row"><label>Column <select id="tc"></select></label>
+                    <label>Target type <select id="tt"></select></label><label>Date format <select id="tf">
+                            <option value="">YYYY-MM-DD</option>
+                            <option>DD/MM/YYYY</option>
+                            <option>MM/DD/YYYY</option>
+                        </select></label>
+                    <label>If a value fails <select id="tm">
+                            <option value="">-- choose --</option>
+                            <option value="cancel">Cancel conversion</option>
+                            <option value="keep">Keep original</option>
+                            <option value="missing">Set to missing</option>
+                        </select></label>
+                    <button id="tgo">Validate and apply</button>
+                </div>
+                <div id="tinfo"></div>
+            </div>
+            <div class="card">
+                <h3>Outliers (1.5 x IQR, flag only)</h3>
+                <div class="row"><select id="oc"></select><button id="ogo">Detect</button></div>
+                <div id="oinfo"></div>
+            </div>
+            <div class="card">
+                <h3>Operation history</h3>
+                <div class="row"><button id="undo">Undo last</button><button id="reset">Reset to original</button></div>
+                <ol id="hist"></ol>
+            </div>
+        </section>
+        <section id="compare">
+            <div class="card">
+                <h3>Original vs current</h3>
+                <div id="cmp"></div>
+            </div>
+        </section>
+        <section id="export">
+            <div class="card">
+                <h3>Export</h3>
+                <div class="row"><label>File name <input id="fn"></label><button class="pri" id="exp">Download
+                        CSV</button></div>
+            </div>
+        </section>
+    </main>
+    <script src="core.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
