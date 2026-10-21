@@ -26,3 +26,4 @@ Try it with `sample_data.csv`.
 ## Not included yet
 Progress indicator (FR-043), outlier treatment (FR-030), performance/browser test report (TC-012, TC-014),
 full user guide and traceability document. Should-have items, deferrable per SRS 6.3.
+
