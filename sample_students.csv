@@ -1,0 +1,14 @@
+id,name,age,salary,city,joined,active
+1,Asha,25,50000,Ranchi,2024-01-15,yes
+2,Ravi,30,62000,Delhi,2024-02-20,no
+3,Meera,,58000,Mumbai,2024-03-05,yes
+4,Karan,28,54000,NA,2024-03-18,yes
+5,Sita,35,71000,Pune,2024-04-02,no
+5,Sita,35,71000,Pune,2024-04-02,no
+6,Amit,abc,55000,Delhi,2024-04-25,yes
+7,Neha,27,60000,,2024-05-10,no
+8,Rohan,31,59000,Mumbai,10/05/2024,yes
+9,Priya,29,1000000,Ranchi,2024-06-01,yes
+10,Vikas,33,64000,Pune,2024-06-12,no
+11,Anita,26,52000,Delhi,2024-07-01,yes
+12,Deepak,,57000,Ranchi,2024-07-15,yes
