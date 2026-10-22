@@ -81,13 +81,6 @@ TEST_RESULTS.md        acceptance-test and performance record (to fill in)
 
 The modules are independent of the UI, so each can be tested on its own.
 
-## Rules chosen where the SRS leaves a choice
-
-- **Missing** means an empty cell, plus any markers you configure at upload. Other text such as `NA` stays text unless you add it as a marker.
-- **Duplicates** are exact matches on the parsed text values; the first occurrence is kept.
-- **Quartiles** use linear interpolation (the pandas default). Outliers lie outside Q1 − 1.5×IQR … Q3 + 1.5×IQR.
-- **Dates** need an explicit format (default `%Y-%m-%d`) and are stored as `YYYY-MM-DD` after conversion.
-- **Type inference** is only a suggestion; it recognises ISO dates and `true`/`false` booleans, and values are never converted until you ask.
 
 ## Limitations
 
